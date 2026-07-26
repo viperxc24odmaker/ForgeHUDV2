@@ -1,0 +1,38 @@
+plugins {
+	// Pinned exact version. 1.14.10 requires Gradle 9.2+, which the workflow now uses.
+	id 'fabric-loom' version '1.14.10'
+	id 'maven-publish'
+}
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+	archivesName = project.archives_base_name
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	mappings loom.officialMojangMappings()
+	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+}
+
+processResources {
+	// NOTE: version is hardcoded inside fabric.mod.json on purpose (no ${version} placeholder).
+	inputs.property "version", project.version
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 21
+}
+
+jar {
+	from("LICENSE") {
+		rename { "${it}_${project.base.archivesName.get()}" }
+	}
+}
